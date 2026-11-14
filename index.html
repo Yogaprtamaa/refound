@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="ReFound Return Pin Logo.png">
+<title>ReFound - FIND IT. RETURN IT.</title>
+<style>
+:root{
+  --bg:#f6f8fb;--card:#fff;--text:#1b2433;--muted:#5d6b82;--line:#e3e8f0;
+  --primary:#168BFF;--primary-d:#0874E8;--lost:#e11d48;--lost-bg:#ffe4ea;
+  --found:#059669;--found-bg:#d9f7ea;--warn:#d97706;--gold:#f59e0b;--radius:14px;
+  --shadow:0 4px 18px rgba(30,50,90,.08);--mine:#dbeafe;--other:#eef1f6;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f1521;--card:#171f2e;--text:#e8edf6;--muted:#93a1b9;--line:#26324a;
+  --lost-bg:#3a1520;--found-bg:#0f3327;--shadow:0 4px 18px rgba(0,0,0,.3);--mine:#1e3a6e;--other:#222c40}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Poppins",sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+.container{max-width:1100px;margin:0 auto;padding:0 16px}
+
+/* Navbar */
+header{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:62px;gap:12px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.3rem;color:var(--primary)}
+.logo img{width:34px;height:34px;object-fit:contain;border-radius:8px;flex-shrink:0}
+.logo .brand-text{display:flex;flex-direction:column;line-height:1.05}
+.logo .brand-name{font-size:1.25rem;font-weight:800;color:var(--primary)}
+.logo .brand-tagline{font-size:.56rem;letter-spacing:.16em;font-weight:700;color:var(--muted);white-space:nowrap}
+nav ul{display:flex;list-style:none;gap:2px;align-items:center}
+nav a.link{display:block;padding:8px 12px;border-radius:999px;font-weight:600;font-size:.9rem;color:var(--muted);position:relative}
+nav a.link:hover{background:var(--bg);color:var(--text)}
+nav a.link.active{background:var(--primary);color:#fff}
+.dot{position:absolute;top:2px;right:2px;min-width:18px;height:18px;border-radius:9px;background:var(--lost);color:#fff;font-size:.68rem;display:none;align-items:center;justify-content:center;padding:0 4px}
+.dot.show{display:flex}
+.userchip{display:flex;align-items:center;gap:8px;margin-left:8px;padding:5px 6px 5px 12px;border:1px solid var(--line);border-radius:999px;font-size:.85rem;font-weight:600}
+.userchip .pts{color:var(--gold)}
+.burger{display:none;background:none;border:0;font-size:1.6rem;color:var(--text)}
+@media(max-width:900px){
+  .burger{display:block}
+  nav{position:absolute;top:62px;left:0;right:0;background:var(--card);border-bottom:1px solid var(--line);display:none;padding:8px 16px 14px}
+  nav.open{display:block}
+  nav ul{flex-direction:column;align-items:stretch}
+  .userchip{margin:8px 0 0;justify-content:space-between}
+}
+
+/* Pages */
+.page{display:none;padding:28px 0 60px}
+.page.active{display:block}
+h1{font-size:2rem;line-height:1.2}
+h2{font-size:1.4rem;margin-bottom:6px}
+.sub{color:var(--muted)}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#168BFF,#45B6FF);color:#fff;border-radius:22px;padding:44px 28px;text-align:center;box-shadow:var(--shadow)}
+.hero-tagline{display:inline-block;font-size:.74rem;letter-spacing:.3em;font-weight:700;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);padding:5px 16px;border-radius:999px;margin-bottom:14px}
+.hero h1{font-size:clamp(1.7rem,4vw,2.6rem);margin-bottom:10px}
+.hero p{opacity:.92;max-width:600px;margin:0 auto 22px}
+.searchbar{display:flex;gap:8px;max-width:620px;margin:0 auto;background:#fff;border-radius:999px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.searchbar input{flex:1;border:0;outline:0;padding:10px 16px;font:inherit;background:transparent;color:#1b2433;min-width:0}
+.searchbar button{border:0;background:var(--primary);color:#fff;font-weight:700;padding:10px 22px;border-radius:999px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:10px;padding:11px 20px;font-weight:700;background:var(--primary);color:#fff;transition:.15s}
+.btn:hover{background:var(--primary-d);transform:translateY(-1px)}
+.btn.lost{background:var(--lost)}.btn.found{background:var(--found)}.btn.gold{background:var(--gold);color:#1b2433}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--bg)}
+.btn.sm{padding:6px 12px;font-size:.82rem;border-radius:8px}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.hero .btn.white{background:#fff;color:#1b2433}
+
+/* Kata kunci pencarian */
+.keywords{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:14px auto 0;max-width:720px}
+.keyword-label{font-size:.82rem;color:rgba(255,255,255,.9);font-weight:500}
+.keyword{border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:6px 13px;font-size:.8rem;font-weight:600;transition:.15s}
+.keyword:hover{background:#fff;color:#0874E8;transform:translateY(-1px)}
+/* Ads */
+.ad-banner{display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:var(--radius);border:1px solid var(--line);background:linear-gradient(100deg,var(--c1),var(--c2));color:#fff;margin:22px 0;position:relative;box-shadow:var(--shadow);cursor:pointer}
+.ad-banner .em{font-size:2.4rem}
+.ad-banner .txt{flex:1;min-width:0}
+.ad-banner b{font-size:1.05rem;display:block}
+.ad-banner small{opacity:.92}
+.ad-tag{position:absolute;top:6px;right:10px;font-size:.62rem;letter-spacing:.08em;font-weight:800;opacity:.85;background:rgba(0,0,0,.25);padding:1px 7px;border-radius:999px}
+.ad-banner .btn{background:#fff;color:#1b2433;flex-shrink:0}
+.item.ad{border:1px dashed var(--c1);background:linear-gradient(160deg,var(--card),var(--card))}
+.item.ad .img{background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff}
+
+/* Cards & grid */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:24px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:1.9rem}
+.stat span{color:var(--muted);font-size:.88rem}
+.stat.l b{color:var(--lost)}.stat.f b{color:var(--found)}.stat.d b{color:var(--primary)}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin:30px 0 14px;gap:10px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.item .img{height:150px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:2.6rem;overflow:hidden;position:relative}
+.item .img img{width:100%;height:100%;object-fit:cover}\n.item .img{font-size:1rem;font-weight:600;color:var(--muted)}
+.item .img .cnt{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;font-size:.72rem;padding:2px 8px;border-radius:999px}
+.item .body{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.item h3{font-size:1.05rem}
+.meta{font-size:.84rem;color:var(--muted)}
+.desc{font-size:.9rem}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px}
+.badge.lost{background:var(--lost-bg);color:var(--lost)}
+.badge.found{background:var(--found-bg);color:var(--found)}
+.badge.done{background:var(--line);color:var(--muted)}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.empty{text-align:center;color:var(--muted);padding:40px 10px;background:var(--card);border:1px dashed var(--line);border-radius:var(--radius)}
+
+/* Steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:14px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.step .n{width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:8px}
+
+/* Forms */
+.formcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);max-width:720px;margin:0 auto}
+.formcard.l{border-top:5px solid var(--lost)}.formcard.f{border-top:5px solid var(--found)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+@media(max-width:600px){.fgrid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+label{font-weight:600;font-size:.88rem}
+input,select,textarea{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--primary);border-color:transparent}
+textarea{min-height:90px;resize:vertical}
+.hint{font-size:.78rem;color:var(--muted)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.thumbs img{width:92px;height:92px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.gate{text-align:center;padding:26px 10px}
+.bonus{background:var(--found-bg);color:var(--found);padding:10px 14px;border-radius:10px;font-size:.88rem;margin-top:14px}
+
+/* Dashboard */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar input{flex:1;min-width:180px}
+.toolbar select{width:auto}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--muted);padding:7px 16px;border-radius:999px;font-weight:600;font-size:.88rem}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.match{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.match small{color:var(--muted)}
+.score{font-weight:800;color:var(--warn)}
+
+/* Gallery in modal */
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:10px 0}
+.gallery img{width:100%;height:140px;object-fit:cover;border-radius:10px;cursor:zoom-in}
+
+/* Chat */
+.chat{display:grid;grid-template-columns:300px 1fr;gap:0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;height:min(640px,calc(100vh - 190px));min-height:420px;box-shadow:var(--shadow)}
+.threads{border-right:1px solid var(--line);overflow:auto}
+.thread{padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;gap:10px;align-items:center}
+.thread:hover,.thread.active{background:var(--bg)}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.thread .t{flex:1;min-width:0}
+.thread .t b,.thread .t small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thread small{color:var(--muted)}
+.unread{width:10px;height:10px;border-radius:50%;background:var(--lost)}
+.conv{display:flex;flex-direction:column;min-width:0}
+.conv-head{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.msgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.bubble{max-width:78%;padding:9px 13px;border-radius:14px;background:var(--other);word-wrap:break-word}
+.bubble.me{align-self:flex-end;background:var(--mine)}
+.bubble small{display:block;font-size:.68rem;color:var(--muted);margin-top:2px}
+.bubble.sys{align-self:center;background:var(--found-bg);color:var(--found);font-size:.85rem;text-align:center;max-width:92%}
+.composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.composer input{flex:1}
+.back{display:none}
+.ph{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;padding:20px}
+@media(max-width:720px){
+  .chat{grid-template-columns:1fr}
+  .chat .conv{display:none}
+  .chat.show-conv .threads{display:none}
+  .chat.show-conv .conv{display:flex}
+  .back{display:inline-flex}
+}
+
+/* Rewards */
+.wallet{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border-radius:var(--radius);padding:24px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.wallet .big{font-size:2.6rem;font-weight:800;line-height:1}
+.rewards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.reward{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow)}
+.reward .em{font-size:2.2rem}
+.cost{color:var(--gold);font-weight:800}
+.list{background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.list div.li{padding:11px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-size:.92rem}
+.list div.li:last-child{border:0}
+.plus{color:var(--found);font-weight:700}.minus{color:var(--lost);font-weight:700}
+.code{font-family:ui-monospace,monospace;background:var(--bg);padding:2px 8px;border-radius:6px;font-weight:700}
+
+/* Modal & toast */
+.modal{position:fixed;inset:0;background:rgba(10,15,30,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal.open{display:flex}
+.modal .box{background:var(--card);border-radius:var(--radius);padding:24px;max-width:480px;width:100%;max-height:90vh;overflow:auto}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1b2433;color:#fff;padding:12px 22px;border-radius:999px;font-weight:600;transition:.3s;z-index:60;opacity:0;max-width:92vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:24px 16px;border-top:1px solid var(--line)}
+footer a{color:var(--primary);font-weight:600;cursor:pointer}
+.login-wall{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#eaf4ff,#f7fbff)}
+.login-card{width:100%;max-width:430px;background:#fff;color:#1b2433;border:1px solid #dce9f8;border-radius:22px;padding:34px;box-shadow:0 18px 60px rgba(18,86,160,.16)}
+.login-brand{display:flex;align-items:center;justify-content:center;gap:11px;color:#168BFF;margin-bottom:8px}
+.login-brand img{width:48px;height:48px;object-fit:contain;border-radius:11px}
+.login-brand .brand-text{display:flex;flex-direction:column;line-height:1.08;text-align:left}
+.login-brand .brand-name{font-size:1.55rem;font-weight:800;color:#168BFF}
+.login-brand .brand-tagline{font-size:.6rem;letter-spacing:.16em;font-weight:700;color:#64748b}
+.demo-accounts{margin-top:18px;padding-top:16px;border-top:1px dashed #dce9f8}
+.demo-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0 10px}
+.demo-btns .btn{flex:1;justify-content:center;min-width:140px}
+.login-card h1{font-size:1.45rem;text-align:center;margin:18px 0 6px}
+.login-card .intro{text-align:center;color:#64748b;font-size:.9rem;margin-bottom:22px}
+.login-card .field{margin-bottom:14px}
+.login-card .btn{width:100%;justify-content:center;margin-top:8px}
+.login-note{text-align:center;color:#64748b;font-size:.76rem;margin-top:16px}
+@media(max-width:480px){.login-card{padding:26px 20px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="#home" class="logo">
+      <img src="ReFound Return Pin Logo.png" alt="Logo ReFound">
+      <span class="brand-text"><span class="brand-name">ReFound</span><span class="brand-tagline">FIND IT. RETURN IT.</span></span>
+    </a>
+    <button class="burger" id="burger" aria-label="Menu">Menu</button>
+    <nav id="nav">
+      <ul>
+        <li><a class="link" href="#home" data-p="home">Beranda</a></li>
+        <li><a class="link" href="#lost" data-p="lost">Lapor Hilang</a></li>
+        <li><a class="link" href="#found" data-p="found">Lapor Temuan</a></li>
+        <li><a class="link" href="#dashboard" data-p="dashboard">Dashboard</a></li>
+        <li><a class="link" href="#chat" data-p="chat"> Chat<span class="dot" id="chatDot"></span></a></li>
+        <li><a class="link" href="#rewards" data-p="rewards"> Hadiah</a></li>
+        <li id="authSlot"></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- BERANDA -->
+  <section class="page" id="page-home">
+    <div class="hero">
+      <span class="hero-tagline">FIND IT. RETURN IT.</span>
+      <h1>Kehilangan sesuatu? Temukan kembali.</h1>
+      <p>Cari, laporkan, dan chat langsung dengan penemu. Menemukan barang orang lain? Dapatkan poin dan tukarkan dengan hadiah dari sponsor kami.</p>
+      <form class="searchbar" id="heroSearch">
+        <input id="heroQ" type="text" placeholder="Cari barang: dompet, kunci, HP, tas...">
+        <button type="submit">Cari</button>
+      </form>
+      <div class="keywords" aria-label="Kata kunci populer">
+        <span class="keyword-label">Pencarian populer:</span>
+        <button type="button" class="keyword" data-keyword="Dompet">Dompet</button>
+        <button type="button" class="keyword" data-keyword="HP">HP</button>
+        <button type="button" class="keyword" data-keyword="Kunci">Kunci</button>
+        <button type="button" class="keyword" data-keyword="Tas">Tas</button>
+        <button type="button" class="keyword" data-keyword="Laptop">Laptop</button>
+        <button type="button" class="keyword" data-keyword="Dokumen">Dokumen</button>
+      </div>
+      <div class="cta">
+        <a class="btn white" href="#lost"> Saya Kehilangan Barang</a>
+        <a class="btn white" href="#found"> Saya Menemukan Barang</a>
+      </div>
+    </div>
+
+    <div class="ad-slot" data-ad="banner"></div>
+
+    <div class="stats" id="homeStats"></div>
+
+    <div class="section-head">
+      <div><h2>Laporan Terbaru</h2><p class="sub">Barang yang baru saja dilaporkan hilang atau ditemukan.</p></div>
+      <a class="btn ghost sm" href="#dashboard">Lihat semua →</a>
+    </div>
+    <div class="grid" id="recent"></div>
+
+    <div class="section-head"><div><h2>Cara Kerja</h2></div></div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><b>Login &amp; lapor</b><p class="sub">Masuk menggunakan email kampus, lalu isi laporan barang hilang atau ditemukan.</p></div>
+      <div class="step"><div class="n">2</div><b>Pencocokan otomatis</b><p class="sub">Sistem mencari laporan yang mirip dari nama, kategori, dan lokasi.</p></div>
+      <div class="step"><div class="n">3</div><b>Chat di ReFound</b><p class="sub">Atur pertemuan lewat chat tanpa perlu membagikan nomor pribadi.</p></div>
+      <div class="step"><div class="n">4</div><b>Konfirmasi &amp; dapat poin</b><p class="sub">Pemilik mengonfirmasi barang kembali, penemu mendapat poin untuk ditukar hadiah.</p></div>
+    </div>
+  </section>
+
+  <!-- LAPOR HILANG -->
+  <section class="page" id="page-lost">
+    <div class="formcard l">
+      <h2> Lapor Barang Hilang</h2>
+      <p class="sub">Semakin detail ciri-cirinya, semakin besar peluang barang Anda ditemukan.</p>
+      <div class="gate" data-gate><p class="sub" style="margin-bottom:12px">Masuk dulu untuk membuat laporan dan chat dengan penemu.</p><button class="btn" onclick="openAuth()">Login Kampus</button></div>
+      <form class="reportForm" data-type="lost">
+        <div class="fgrid">
+          <div class="field"><label>Nama Barang *</label><input name="name" required placeholder="Contoh: Dompet kulit hitam"></div>
+          <div class="field"><label>Kategori *</label><select name="cat" required></select></div>
+          <div class="field"><label>Lokasi Terakhir Terlihat *</label><input name="loc" required placeholder="Contoh: Kantin Gedung B"></div>
+          <div class="field"><label>Tanggal Hilang *</label><input type="date" name="date" required></div>
+          <div class="field full"><label>Deskripsi / Ciri-ciri</label><textarea name="desc" placeholder="Warna, merek, isi, tanda khusus..."></textarea></div>
+          <div class="field full"><label>Foto Barang (maks. 3)</label><input type="file" name="photos" accept="image/*" multiple><span class="hint">Foto lama/serupa juga boleh, membantu penemu mengenali barang Anda.</span><div class="thumbs"></div></div>
+          <div class="field full"><label>Kontak Tambahan (opsional)</label><input name="contact" placeholder="Kosongkan jika ingin chat saja lewat ReFound"></div>
+        </div>
+        <div class="row" style="margin-top:20px"><button class="btn lost" type="submit">Kirim Laporan Hilang</button><button class="btn ghost" type="reset">Reset</button></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- LAPOR TEMUAN -->
+  <section class="page" id="page-found">
+    <div class="formcard f">
+      <h2> Lapor Barang Temuan</h2>
+      <p class="sub">Terima kasih sudah peduli. Setiap barang yang berhasil dikembalikan memberi Anda poin.</p>
+      <div class="bonus">⭐ <b>+100 poin</b> saat pemilik mengonfirmasi barang kembali, <b>+25 poin bonus</b> jika laporan Anda menyertakan foto.</div>
+      <div class="gate" data-gate><p class="sub" style="margin-bottom:12px">Masuk dulu untuk membuat laporan dan mengumpulkan poin.</p><button class="btn" onclick="openAuth()">Login Kampus</button></div>
+      <form class="reportForm" data-type="found">
+        <div class="fgrid">
+          <div class="field"><label>Nama Barang *</label><input name="name" required placeholder="Contoh: Kunci motor Honda"></div>
+          <div class="field"><label>Kategori *</label><select name="cat" required></select></div>
+          <div class="field"><label>Lokasi Ditemukan *</label><input name="loc" required placeholder="Contoh: Parkiran Timur"></div>
+          <div class="field"><label>Tanggal Ditemukan *</label><input type="date" name="date" required></div>
+          <div class="field full"><label>Deskripsi / Ciri-ciri</label><textarea name="desc" placeholder="Kondisi, warna, merek... (jangan tulis detail yang hanya diketahui pemilik asli)"></textarea></div>
+          <div class="field full"><label>Foto Barang (maks. 3) — bonus +25 poin</label><input type="file" name="photos" accept="image/*" capture="environment" multiple><span class="hint">Tutupi info sensitif seperti nomor kartu atau KTP sebelum memotret.</span><div class="thumbs"></div></div>
+          <div class="field full"><label>Kontak Tambahan (opsional)</label><input name="contact" placeholder="Kosongkan jika ingin chat saja lewat ReFound"></div>
+        </div>
+        <div class="row" style="margin-top:20px"><button class="btn found" type="submit">Kirim Laporan Temuan</button><button class="btn ghost" type="reset">Reset</button></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section class="page" id="page-dashboard">
+    <h1>Dashboard</h1>
+    <p class="sub">Pantau seluruh laporan dan lihat kemungkinan kecocokan.</p>
+    <div class="stats" id="dashStats"></div>
+    <div class="ad-slot" data-ad="banner"></div>
+
+    <div class="section-head"><div><h2> Kemungkinan Cocok</h2><p class="sub">Laporan hilang dan temuan yang tampak mirip.</p></div></div>
+    <div id="matches"></div>
+
+    <div class="section-head"><div><h2>Semua Laporan</h2></div></div>
+    <div class="toolbar">
+      <input id="dq" type="search" placeholder="Cari nama, lokasi, deskripsi...">
+      <select id="dcat"></select>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-f="all">Semua</button>
+      <button class="tab" data-f="lost">Hilang</button>
+      <button class="tab" data-f="found">Temuan</button>
+      <button class="tab" data-f="mine">Laporan Saya</button>
+      <button class="tab" data-f="done">Selesai</button>
+    </div>
+    <div class="grid" id="list"></div>
+  </section>
+
+  <!-- CHAT -->
+  <section class="page" id="page-chat">
+    <h1> Chat</h1>
+    <p class="sub" style="margin-bottom:16px">Berkomunikasi dengan pemilik atau penemu barang tanpa membagikan nomor pribadi.</p>
+    <div id="chatArea"></div>
+  </section>
+
+  <!-- HADIAH -->
+  <section class="page" id="page-rewards">
+    <h1> Hadiah Sponsor</h1>
+    <p class="sub" style="margin-bottom:16px">Kumpulkan poin dari membantu orang lain, tukarkan dengan voucher dari sponsor.</p>
+    <div id="rewardArea"></div>
+  </section>
+</main>
+
+<footer>ReFound &copy; 2026 · Data disimpan di browser Anda (demo) · <a onclick="openAdvertise()">Pasang iklan / jadi sponsor</a></footer>
+
+<div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<div class="login-wall" id="loginWall">
+  <div class="login-card">
+    <div class="login-brand">
+      <img src="ReFound Return Pin Logo.png" alt="Logo ReFound">
+      <span class="brand-text"><span class="brand-name">ReFound</span><span class="brand-tagline">FIND IT. RETURN IT.</span></span>
+    </div>
+    <h1>Login Akun Kampus</h1>
+    <p class="intro">Platform pencarian barang hilang khusus warga kampus. Masuk menggunakan akun institusi yang telah disediakan administrator.</p>
+    <form id="campusLoginForm">
+      <div class="field"><label for="campusEmail">Email Kampus</label><input id="campusEmail" name="email" type="email" placeholder="nama@kampus.ac.id" autocomplete="username" required></div>
+      <div class="field"><label for="campusPass">Kata Sandi</label><input id="campusPass" name="pass" type="password" placeholder="Masukkan kata sandi" autocomplete="current-password" required></div>
+      <button class="btn" type="submit">Masuk ke ReFound</button>
+    </form>
+    <div class="demo-accounts">
+      <p class="login-note" style="margin-top:0">Akun demo untuk uji chat dua arah:</p>
+      <div class="demo-btns">
+        <button type="button" class="btn ghost sm" onclick="quickLogin('nabila@kampus.ac.id','nabila123')">Masuk sebagai Nabila</button>
+        <button type="button" class="btn ghost sm" onclick="quickLogin('iklima@kampus.ac.id','iklima123')">Masuk sebagai Iklima</button>
+      </div>
+      <p class="login-note">Buka tab baru lalu ketik alamat ini: login Nabila di satu tab dan Iklima di tab lain. Bisa juga logout lalu login akun lainnya untuk balas-balasan.</p>
+    </div>
+    <p class="login-note">Akun hanya dapat dibuat dan dikelola oleh administrator kampus. Jika belum memiliki akun, hubungi admin institusi.</p>
+  </div>
+</div>
+
+<script>
+/* ================= Konfigurasi ================= */
+const CATS = ["Dompet & Tas","Elektronik","Kunci","Dokumen & Kartu","Pakaian & Aksesoris","Alat Tulis & Buku","Lainnya"];
+const ICON = {"Dompet & Tas":"Dompet & Tas","Elektronik":"Elektronik","Kunci":"Kunci","Dokumen & Kartu":"Dokumen","Pakaian & Aksesoris":"Aksesoris","Alat Tulis & Buku":"Alat Tulis","Lainnya":"Barang"};
+const BASE_PTS = 100, PHOTO_BONUS = 25;
+const DBK = "refound_campus_db_v4", SK = "refound_session_v4";
+
+const ADS = [
+  {id:"a1",sponsor:"Kopi Senja",title:"Beli 1 Gratis 1 untuk kopi susu",text:"Tunjukkan layar ini di gerai Kopi Senja mana pun.",cta:"Lihat promo",emoji:"",c1:"#92400e",c2:"#d97706"},
+  {id:"a2",sponsor:"PulsaKu",title:"Cashback 10% isi pulsa & paket data",text:"Khusus pengguna ReFound, berlaku sampai akhir bulan.",cta:"Ambil promo",emoji:"",c1:"#1d4ed8",c2:"#06b6d4"},
+  {id:"a3",sponsor:"Ngebut Ride",title:"Diskon 30% perjalanan pertama",text:"Pulang lebih cepat, aman, dan murah.",cta:"Pakai kode",emoji:"",c1:"#047857",c2:"#65a30d"},
+  {id:"a4",sponsor:"Buku Cerdas",title:"Diskon alat tulis & buku kuliah",text:"Belanja hemat untuk semester baru.",cta:"Belanja",emoji:"",c1:"#7c3aed",c2:"#db2777"}
+];
+const REWARDS = [
+  {id:"r1",sponsor:"Kopi Senja",name:"Voucher Kopi Susu",cost:100,emoji:"",desc:"Gratis 1 gelas kopi susu ukuran reguler."},
+  {id:"r2",sponsor:"PulsaKu",name:"Pulsa Rp10.000",cost:150,emoji:"",desc:"Pulsa semua operator, dikirim ke nomor Anda."},
+  {id:"r3",sponsor:"Ngebut Ride",name:"Voucher Ride Rp15.000",cost:200,emoji:"",desc:"Potongan perjalanan, berlaku 30 hari."},
+  {id:"r4",sponsor:"Buku Cerdas",name:"Voucher Belanja Rp25.000",cost:300,emoji:"",desc:"Untuk buku dan alat tulis, min. belanja Rp50.000."},
+  {id:"r5",sponsor:"Warung Nusantara",name:"Makan Siang Gratis",cost:400,emoji:"",desc:"Satu paket makan siang di Warung Nusantara."},
+  {id:"r6",sponsor:"PulsaKu",name:"Paket Data 10 GB",cost:600,emoji:"",desc:"Paket data 10 GB masa aktif 30 hari."}
+];
+
+/* ================= Data ================= */
+const hash = s=>{let x=5381;s=("refound$"+s);for(let i=0;i<s.length;i++)x=((x<<5)+x+s.charCodeAt(i))|0;return String(x>>>0)}; // demo saja, bukan keamanan sungguhan
+const day = (d=0)=>{const x=new Date();x.setDate(x.getDate()-d);return x.toISOString().slice(0,10)};
+const uid = ()=>Date.now()*1000+Math.floor(Math.random()*1000);
+const now = ()=>Date.now();
+const xmlEsc = s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const CAT_EMOJI = {"Dompet & Tas":"👛","Elektronik":"📱","Kunci":"🔑","Dokumen & Kartu":"🪪","Pakaian & Aksesoris":"🧥","Alat Tulis & Buku":"📚","Lainnya":"📦"};
+const CAT_PAL = {
+  "Dompet & Tas":["#b45309","#f59e0b"],
+  "Elektronik":["#1d4ed8","#06b6d4"],
+  "Kunci":["#475569","#94a3b8"],
+  "Dokumen & Kartu":["#0f766e","#22c55e"],
+  "Pakaian & Aksesoris":["#7c3aed","#db2777"],
+  "Alat Tulis & Buku":["#0e7490","#6366f1"],
+  "Lainnya":["#9a3412","#f97316"]
+};
+const CAT_DETAIL = {
+  "Dompet & Tas":"Ada kartu identitas dan uang tunai di dalamnya.",
+  "Elektronik":"Layar dan bodi masih berfungsi normal.",
+  "Kunci":"Ada gantungan kunci dengan ciri khusus.",
+  "Dokumen & Kartu":"Dokumen penting, mohon segera dikembalikan.",
+  "Pakaian & Aksesoris":"Ukuran pas dan ada tanda khusus di bagian dalam.",
+  "Alat Tulis & Buku":"Ada nama saya tertulis di halaman depan.",
+  "Lainnya":"Kondisi masih bagus dan berfungsi."
+};
+function seedPhoto(cat,name,type){
+  const em=CAT_EMOJI[cat]||"📦",pal=CAT_PAL[cat]||["#168BFF","#45B6FF"];
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="560" height="360" viewBox="0 0 560 360"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${pal[0]}"/><stop offset="1" stop-color="${pal[1]}"/></linearGradient></defs><rect width="560" height="360" fill="url(#g)"/><circle cx="468" cy="64" r="96" fill="rgba(255,255,255,.16)"/><circle cx="86" cy="310" r="74" fill="rgba(255,255,255,.12)"/><text x="280" y="168" font-size="118" text-anchor="middle" dominant-baseline="central">${em}</text><text x="280" y="292" font-size="26" font-family="Poppins,Arial,sans-serif" font-weight="700" fill="#fff" text-anchor="middle">${xmlEsc(name)}</text><text x="280" y="326" font-size="15" font-family="Poppins,Arial,sans-serif" letter-spacing="2" fill="rgba(255,255,255,.88)" text-anchor="middle">${type==="lost"?"LAPORAN HILANG":"LAPORAN TEMUAN"}</text></svg>`;
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+
+const LOST_SEED = [
+  ["Dompet kulit hitam","Dompet & Tas","Kantin Gedung B"],
+  ["Dompet kain batik","Dompet & Tas","Aula Utama"],
+  ["Dompet kecil abu-abu","Dompet & Tas","Perpustakaan Lt. 2"],
+  ["Tas ransel hitam","Dompet & Tas","Parkiran Timur"],
+  ["Tas tote kanvas","Dompet & Tas","Koperasi Mahasiswa"],
+  ["Kunci motor Honda","Kunci","Parkiran Timur"],
+  ["Kunci mobil gantungan biru","Kunci","Parkiran Barat"],
+  ["Kunci kos warna pink","Kunci","Gedung F Lobby"],
+  ["Kunci sepeda lipat","Kunci","Lapangan Basket"],
+  ["HP Android layar retak","Elektronik","Lab Komputer 3"],
+  ["iPhone putih","Elektronik","Perpustakaan Lt. 1"],
+  ["Earphone TWS putih","Elektronik","Gazebo Kampus"],
+  ["Powerbank hitam","Elektronik","Ruang Baca Lt. 3"],
+  ["Laptop Acer abu-abu","Elektronik","Studio Desain"],
+  ["Charger Type-C","Elektronik","Gedung C Lt. 1"],
+  ["Flashdisk 32GB","Elektronik","Lab Komputer 1"],
+  ["Jam tangan hitam","Pakaian & Aksesoris","Masjid Kampus"],
+  ["Jaket denim biru","Pakaian & Aksesoris","Aula Utama"],
+  ["Hoodie abu-abu","Pakaian & Aksesoris","Gedung D Lobby"],
+  ["Topi baseball hitam","Pakaian & Aksesoris","Lapangan Basket"],
+  ["Kacamata minus","Pakaian & Aksesoris","Perpustakaan Lt. 2"],
+  ["Scarf motif bunga","Pakaian & Aksesoris","Masjid Kampus"],
+  ["Sepatu sneakers putih","Pakaian & Aksesoris","Gazebo Kampus"],
+  ["Botol minum biru","Lainnya","Kantin Gedung A"],
+  ["Payung lipat hitam","Lainnya","Gedung F Lobby"],
+  ["Tumbler stainless","Lainnya","Ruang Seminar"],
+  ["Kunci kamera","Lainnya","Studio Desain"],
+  ["Helm putih","Lainnya","Parkiran Barat"],
+  ["KTP dan SIM","Dokumen & Kartu","Kantin Gedung B"],
+  ["KTM kampus","Dokumen & Kartu","Gedung C Lt. 1"],
+  ["Kartu ATM BCA","Dokumen & Kartu","Koperasi Mahasiswa"],
+  ["Buku catatan merah","Alat Tulis & Buku","Perpustakaan Lt. 3"],
+  ["Buku Kalkulus","Alat Tulis & Buku","Ruang Baca Lt. 3"],
+  ["Pulpen hitam set","Alat Tulis & Buku","Lab Komputer 2"],
+  ["Kotak pensil biru","Alat Tulis & Buku","Gedung D Lobby"],
+  ["Tas laptop hitam","Dompet & Tas","Perpustakaan Lt. 1"],
+  ["Dompet kartu cokelat","Dompet & Tas","Kantin Gedung A"],
+  ["Kunci gitar","Kunci","Aula Musik"],
+  ["Kunci loker","Kunci","Gedung C Lt. 2"],
+  ["Tablet Samsung","Elektronik","Studio Desain"],
+  ["Hardisk eksternal","Elektronik","Lab Komputer 3"],
+  ["Mouse wireless","Elektronik","Lab Komputer 1"],
+  ["Kabel HDMI","Elektronik","Ruang Seminar"],
+  ["Syal rajut","Pakaian & Aksesoris","Taman Belakang"],
+  ["Gelang perak","Pakaian & Aksesoris","Masjid Kampus"],
+  ["ID card tali biru","Dokumen & Kartu","Gedung F Lobby"],
+  ["Buku sketsa","Alat Tulis & Buku","Studio Desain"],
+  ["Map dokumen kuning","Dokumen & Kartu","Gedung D Lobby"],
+  ["Kantong belanja kain","Lainnya","Koperasi Mahasiswa"],
+  ["Kunci rumah","Kunci","Gazebo Kampus"]
+];
+
+const FOUND_SEED = [
+  ["Dompet hitam","Dompet & Tas","Kantin Gedung B"],
+  ["Dompet kain batik","Dompet & Tas","Aula Utama"],
+  ["Tas ransel hitam","Dompet & Tas","Parkiran Timur"],
+  ["Kunci motor gantungan bintang","Kunci","Parkiran Timur"],
+  ["Kunci mobil","Kunci","Parkiran Barat"],
+  ["HP Android","Elektronik","Lab Komputer 3"],
+  ["iPhone","Elektronik","Perpustakaan Lt. 1"],
+  ["Earphone putih","Elektronik","Gazebo Kampus"],
+  ["Powerbank","Elektronik","Ruang Baca Lt. 3"],
+  ["Charger Type-C","Elektronik","Gedung C Lt. 1"],
+  ["Flashdisk","Elektronik","Lab Komputer 1"],
+  ["Jaket denim","Pakaian & Aksesoris","Aula Utama"],
+  ["Kacamata","Pakaian & Aksesoris","Perpustakaan Lt. 2"],
+  ["Topi hitam","Pakaian & Aksesoris","Lapangan Basket"],
+  ["Botol minum","Lainnya","Kantin Gedung A"],
+  ["Payung hitam","Lainnya","Gedung F Lobby"],
+  ["Tumbler","Lainnya","Ruang Seminar"],
+  ["Helm putih","Lainnya","Parkiran Barat"],
+  ["KTM kampus","Dokumen & Kartu","Gedung C Lt. 1"],
+  ["Kartu ATM","Dokumen & Kartu","Koperasi Mahasiswa"],
+  ["Buku catatan","Alat Tulis & Buku","Perpustakaan Lt. 3"],
+  ["Buku Kalkulus","Alat Tulis & Buku","Ruang Baca Lt. 3"],
+  ["Kotak pensil","Alat Tulis & Buku","Gedung D Lobby"],
+  ["Tas laptop","Dompet & Tas","Perpustakaan Lt. 1"],
+  ["Dompet kartu","Dompet & Tas","Kantin Gedung A"],
+  ["Kunci loker","Kunci","Gedung C Lt. 2"],
+  ["Tablet","Elektronik","Studio Desain"],
+  ["Hardisk eksternal","Elektronik","Lab Komputer 3"],
+  ["Mouse wireless","Elektronik","Lab Komputer 1"],
+  ["Syal rajut","Pakaian & Aksesoris","Taman Belakang"],
+  ["Gelang perak","Pakaian & Aksesoris","Masjid Kampus"],
+  ["ID card","Dokumen & Kartu","Gedung F Lobby"],
+  ["Buku sketsa","Alat Tulis & Buku","Studio Desain"],
+  ["Map dokumen","Dokumen & Kartu","Gedung D Lobby"],
+  ["Kunci rumah","Kunci","Gazebo Kampus"]
+];
+
+function seed(){
+  const p=hash("demo123");
+  const lost=LOST_SEED.map(([name,cat,loc],i)=>({
+    id:i+1,userId:i%2===0?1:2,type:"lost",name,cat,loc,date:day(1+(i%9)),
+    desc:`${name} ${CAT_DETAIL[cat]} Terakhir terlihat di ${loc}.`,
+    contact:"",photos:[seedPhoto(cat,name,"lost")],status:i<21?"open":"done",created:now()-(i+1)*2.4e6
+  }));
+  const found=FOUND_SEED.map(([name,cat,loc],i)=>({
+    id:51+i,userId:i%2===0?2:1,type:"found",name,cat,loc,date:day(1+(i%9)),
+    desc:`${name} ditemukan di ${loc}. ${CAT_DETAIL[cat]} Sudah saya amankan dan siap dikembalikan ke pemiliknya.`,
+    contact:"",photos:[seedPhoto(cat,name,"found")],status:"open",created:now()-(i+1)*3.1e6
+  }));
+  return {
+    users:[
+      {id:1,name:"Nabila",email:"nabila@kampus.ac.id",pass:hash("nabila123"),points:180},
+      {id:2,name:"Iklima",email:"iklima@kampus.ac.id",pass:hash("iklima123"),points:220}
+    ],
+    items:[...lost,...found],
+    threads:[
+      {id:1001,itemId:1,a:1,b:2,read:{1:now()-3e6,2:now()-3e6},settled:false},
+      {id:1002,itemId:2,a:2,b:1,read:{1:now()-2e6,2:now()-2e6},settled:false}
+    ],
+    msgs:[
+      {id:1,tid:1001,from:2,text:"Halo Kak Nabila, saya menemukan dompet hitam di Kantin Gedung B. Apakah benar ini milik Kakak?",t:now()-30*6e4},
+      {id:2,tid:1001,from:1,text:"Hai Kak Iklima! Iya, dompet saya hilang di kantin tadi pagi. Di dalamnya ada KTP dan kartu ATM BCA.",t:now()-24*6e4},
+      {id:3,tid:1001,from:2,text:"Betul, ada KTP dan kartu ATM BCA. Saya sudah amankan ya. Bisa ketemuan di lobi Gedung B jam 3 sore?",t:now()-18*6e4},
+      {id:4,tid:1001,from:1,text:"Bisa banget, terima kasih banyak Kak Iklima!",t:now()-12*6e4},
+      {id:5,tid:1001,from:2,text:"Siap, nanti saya tunggu di dekat pintu masuk lobi ya.",t:now()-6*6e4},
+      {id:6,tid:1002,from:1,text:"Halo Kak Iklima, saya menemukan dompet kain batik di Aula Utama. Sepertinya ini punya Kakak?",t:now()-26*6e4},
+      {id:7,tid:1002,from:2,text:"Iya Kak Nabila, dompet batik saya hilang setelah acara di aula. Ada kain perca kecil di dalamnya.",t:now()-20*6e4},
+      {id:8,tid:1002,from:1,text:"Benar, ada kain perca kecil dan kartu mahasiswa. Saya bawa ke sekretariat ya, bisa diambil besok.",t:now()-14*6e4},
+      {id:9,tid:1002,from:2,text:"Wah terima kasih banyak Kak! Besok pagi saya ambil.",t:now()-8*6e4}
+    ],
+    log:[
+      {id:1,uid:1,delta:180,note:"Bonus aktivitas komunitas",t:now()-9e8},
+      {id:2,uid:2,delta:220,note:"Bonus barang berhasil dikembalikan",t:now()-7e8}
+    ],
+    redeems:[], clicks:{}
+  };
+}
+let db = loadDb();
+function loadDb(){
+  try{const d=JSON.parse(localStorage.getItem(DBK));if(d&&d.users&&d.items)return d}catch(e){}
+  const d=seed();
+  try{localStorage.setItem(DBK,JSON.stringify(d))}catch(e){}
+  return d;
+}
+function save(){try{localStorage.setItem(DBK,JSON.stringify(db))}catch(e){toast("Penyimpanan penuh. Gunakan foto lebih kecil.")}}
+let sid = Number(sessionStorage.getItem(SK))||0;
+const me = ()=>db.users.find(u=>u.id===sid)||null;
+const userBy = id=>db.users.find(u=>u.id===id);
+const nameOf = id=>(userBy(id)||{name:"Pengguna"}).name;
+const itemBy = id=>db.items.find(i=>i.id===id);
+
+/* ================= Helpers ================= */
+const $ = s=>document.querySelector(s), $$ = s=>[...document.querySelectorAll(s)];
+const esc = s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = d=>{try{return new Date(d).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"})}catch(e){return d}};
+const fmtT = t=>new Date(t).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),3000)}
+const words = s=>String(s||"").toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(w=>w.length>2);
+function openModal(html){$("#modalBox").innerHTML=html;$("#modal").classList.add("open")}
+function closeModal(){$("#modal").classList.remove("open")}
+$("#modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+
+/* ================= Akun ================= */
+function renderAuth(){
+  const u=me(), slot=$("#authSlot"), wall=$("#loginWall");
+  wall.style.display=u?"none":"flex";
+  if(u){
+    slot.innerHTML=`<div class="userchip"><span>${esc(u.name)} · <span class="pts">${u.points} poin</span></span><button class="btn ghost sm" onclick="logout()">Keluar</button></div>`;
+  }else{
+    slot.innerHTML=`<button class="btn sm" style="margin-left:8px" onclick="openAuth()">Login Kampus</button>`;
+  }
+  $$('[data-gate]').forEach(g=>{g.style.display=u?"none":"block";const form=g.parentElement.querySelector("form");if(form)form.style.display=u?"block":"none"});
+  updateChatDot();
+}
+function openAuth(){
+  const wall=$("#loginWall");
+  wall.style.display="flex";
+  setTimeout(()=>$("#campusEmail").focus(),0);
+}
+$("#campusLoginForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const f=Object.fromEntries(new FormData(e.target));
+  f.email=f.email.trim().toLowerCase();
+  const u=db.users.find(u=>u.email===f.email&&u.pass===hash(f.pass));
+  if(!u){toast("Email kampus atau kata sandi salah. Hubungi administrator jika belum memiliki akun.");return;}
+  sid=u.id;
+  sessionStorage.setItem(SK,String(sid));
+  renderAll();route();
+  toast("Selamat datang, "+u.name);
+});
+function quickLogin(email,pass){
+  const u=db.users.find(x=>x.email===email&&x.pass===hash(pass));
+  if(!u)return toast("Akun demo tidak ditemukan");
+  sid=u.id;
+  sessionStorage.setItem(SK,String(sid));
+  renderAll();route();
+  toast("Selamat datang, "+u.name+" — akun demo siap dipakai");
+}
+function logout(){sid=0;sessionStorage.removeItem(SK);curTid=null;renderAll();route();openAuth();toast("Anda sudah keluar") }
+function needLogin(){if(me())return false;openAuth();return true}
+
+/* ================= Iklan ================= */
+let adIdx=0;
+const adBy=id=>ADS.find(a=>a.id===id);
+function bannerHTML(ad){
+  return `<div class="ad-banner" style="--c1:${ad.c1};--c2:${ad.c2}" onclick="openAd('${ad.id}')">
+    <span class="ad-tag">IKLAN</span><div class="em">${ad.emoji}</div>
+    <div class="txt"><small>${esc(ad.sponsor)}</small><b>${esc(ad.title)}</b><small>${esc(ad.text)}</small></div>
+    <button class="btn sm">${esc(ad.cta)}</button></div>`;
+}
+function adCard(ad){
+  return `<article class="item ad" style="--c1:${ad.c1};--c2:${ad.c2}"><div class="img">${ad.emoji}</div>
+    <div class="body"><div class="row"><span class="badge done">IKLAN · ${esc(ad.sponsor)}</span></div>
+    <h3>${esc(ad.title)}</h3><p class="desc">${esc(ad.text)}</p>
+    <div style="margin-top:auto;padding-top:8px"><button class="btn sm" onclick="openAd('${ad.id}')">${esc(ad.cta)}</button></div></div></article>`;
+}
+function renderBanners(){
+  $$(".ad-slot").forEach((el,i)=>{el.innerHTML=bannerHTML(ADS[(adIdx+i)%ADS.length])});
+}
+setInterval(()=>{adIdx++;renderBanners()},7000);
+function openAd(id){
+  const ad=adBy(id);db.clicks[id]=(db.clicks[id]||0)+1;save();
+  openModal(`<div class="ad-banner" style="--c1:${ad.c1};--c2:${ad.c2};cursor:default;margin-top:0"><span class="ad-tag">IKLAN</span><div class="em">${ad.emoji}</div><div class="txt"><small>${esc(ad.sponsor)}</small><b>${esc(ad.title)}</b></div></div>
+    <p style="margin:10px 0">${esc(ad.text)}</p>
+    <p class="hint">Iklan ini bersifat demo. Pada versi sungguhan tombol akan membuka halaman sponsor.</p>
+    <div class="row" style="margin-top:14px"><button class="btn" onclick="closeModal()">Tutup</button></div>`);
+}
+function openAdvertise(){
+  openModal(`<h2>Pasang Iklan di ReFound</h2>
+    <p style="margin:8px 0">Jangkau pengguna yang aktif mencari dan membantu sesama. Tersedia banner halaman, iklan di daftar laporan, serta penawaran hadiah poin.</p>
+    <ul style="margin:0 0 12px 18px"><li>Banner beranda &amp; dashboard</li><li>Kartu iklan di daftar laporan</li><li>Voucher hadiah penukaran poin</li></ul>
+    <p class="hint">Hubungi: iklan@refound.example (contoh)</p>
+    <div class="row" style="margin-top:14px"><button class="btn" onclick="closeModal()">Tutup</button></div>`);
+}
+function withAds(cards){
+  const out=[];cards.forEach((c,i)=>{out.push(c);if((i+1)%5===0)out.push(adCard(ADS[(i/5+adIdx)%ADS.length|0]))});
+  if(cards.length>0&&cards.length<5)out.push(adCard(ADS[adIdx%ADS.length]));
+  return out.join("");
+}
+
+/* ================= Pencocokan ================= */
+function score(a,b){
+  if(a.type===b.type||a.status==="done"||b.status==="done")return 0;
+  let s=0;
+  if(a.cat===b.cat)s+=30;
+  const wa=new Set(words(a.name+" "+a.desc)),wb=new Set(words(b.name+" "+b.desc));
+  let c=0;wa.forEach(w=>{if(wb.has(w))c++});s+=Math.min(c*12,45);
+  const la=new Set(words(a.loc));if(words(b.loc).some(w=>la.has(w)))s+=20;
+  if(Math.abs(new Date(a.date)-new Date(b.date))/864e5<=3)s+=5;
+  return Math.min(s,100);
+}
+function getMatches(){
+  const L=db.items.filter(i=>i.type==="lost"&&i.status==="open"),F=db.items.filter(i=>i.type==="found"&&i.status==="open"),out=[];
+  L.forEach(l=>F.forEach(f=>{const s=score(l,f);if(s>=50)out.push({l,f,s})}));
+  return out.sort((a,b)=>b.s-a.s);
+}
+
+/* ================= Render laporan ================= */
+function card(it){
+  const done=it.status==="done",mine=me()&&it.userId===me().id,ph=it.photos||[];
+  return `<article class="item">
+    <div class="img">${ph[0]?`<img src="${ph[0]}" alt="${esc(it.name)}">`:(ICON[it.cat]||"")}${ph.length>1?`<span class="cnt"> ${ph.length}</span>`:""}</div>
+    <div class="body">
+      <div class="row"><span class="badge ${it.type}">${it.type==="lost"?"HILANG":"DITEMUKAN"}</span>${done?'<span class="badge done">SELESAI</span>':""}${mine?'<span class="badge done">Milik Anda</span>':""}</div>
+      <h3>${esc(it.name)}</h3>
+      <div class="meta"> ${esc(it.loc)}<br> ${fmt(it.date)} · ${esc(it.cat)}<br> ${esc(nameOf(it.userId))}</div>
+      <p class="desc">${esc((it.desc||"").slice(0,90))}${(it.desc||"").length>90?"…":""}</p>
+      <div class="row" style="margin-top:auto;padding-top:8px">
+        <button class="btn ghost sm" onclick="detail(${it.id})">Detail</button>
+        ${!done&&!mine?`<button class="btn sm" onclick="startChat(${it.id})"> Chat</button>`:""}
+        ${!done&&mine?`<button class="btn ghost sm" onclick="markDone(${it.id})">Tandai selesai</button>`:""}
+        ${mine?`<button class="btn ghost sm" onclick="del(${it.id})" aria-label="Hapus"></button>`:""}
+      </div>
+    </div></article>`;
+}
+function statsHTML(){
+  const l=db.items.filter(i=>i.type==="lost").length,f=db.items.filter(i=>i.type==="found").length,d=db.items.filter(i=>i.status==="done").length,active=db.items.filter(i=>i.type==="lost"&&i.status==="open").length;
+  return `<div class="stat l"><b>${l}</b><span>Laporan hilang</span></div>
+    <div class="stat f"><b>${f}</b><span>Laporan temuan</span></div>
+    <div class="stat d"><b>${d}</b><span>Berhasil selesai</span></div>
+    <div class="stat"><b>${active}</b><span>Masih aktif</span></div>`;
+}
+function renderHome(){
+  $("#homeStats").innerHTML=statsHTML();
+  const r=[...db.items].sort((a,b)=>b.created-a.created).slice(0,4);
+  $("#recent").innerHTML=r.length?withAds(r.map(card)):'<div class="empty">Belum ada laporan.</div>';
+}
+let filter="all";
+function renderDash(){
+  $("#dashStats").innerHTML=statsHTML();
+  const m=getMatches(),shown=m.slice(0,8);
+  $("#matches").innerHTML=m.length?shown.map(x=>`<div class="match">
+    <div><b>${esc(x.l.name)}</b> <small>(hilang di ${esc(x.l.loc)}, ${esc(nameOf(x.l.userId))})</small><br>
+    ↔ <b>${esc(x.f.name)}</b> <small>(ditemukan di ${esc(x.f.loc)}, ${esc(nameOf(x.f.userId))})</small></div>
+    <div class="row"><span class="score">${x.s}% cocok</span>
+    <button class="btn ghost sm" onclick="detail(${x.l.id})">Lihat hilang</button>
+    <button class="btn found sm" onclick="detail(${x.f.id})">Lihat temuan</button></div></div>`).join("")
+    +(m.length>shown.length?`<p class="hint" style="margin:4px 0 12px">Menampilkan ${shown.length} dari ${m.length} kecocokan teratas.</p>`:"")
+    :'<div class="empty">Belum ada kecocokan terdeteksi.</div>';
+  const q=$("#dq").value.toLowerCase().trim(),c=$("#dcat").value,u=me();
+  const list=db.items.filter(i=>{
+    if(filter==="lost"&&i.type!=="lost")return false;
+    if(filter==="found"&&i.type!=="found")return false;
+    if(filter==="done"&&i.status!=="done")return false;
+    if(filter==="mine"&&!(u&&i.userId===u.id))return false;
+    if(c&&i.cat!==c)return false;
+    if(q&&!(i.name+" "+i.loc+" "+i.desc+" "+i.cat).toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>b.created-a.created);
+  $("#list").innerHTML=list.length?withAds(list.map(card)):'<div class="empty" style="grid-column:1/-1">Tidak ada laporan yang cocok dengan filter.</div>';
+}
+
+/* ================= Aksi laporan ================= */
+function detail(id){
+  const it=itemBy(id);if(!it)return;
+  const mine=me()&&it.userId===me().id,ph=it.photos||[];
+  openModal(`<div class="row"><span class="badge ${it.type}">${it.type==="lost"?"HILANG":"DITEMUKAN"}</span>${it.status==="done"?'<span class="badge done">SELESAI</span>':""}</div>
+    <h2 style="margin-top:8px">${esc(it.name)}</h2>
+    ${ph.length?`<div class="gallery">${ph.map(p=>`<img src="${p}" alt="" onclick="window.open(this.src)">`).join("")}</div>`:`<p class="hint" style="margin:8px 0">Belum ada foto.</p>`}
+    <p class="meta">Kategori: ${esc(it.cat)}<br> ${esc(it.loc)}<br> ${fmt(it.date)}</p>
+    <p style="margin:10px 0">${esc(it.desc)||"<i>Tidak ada deskripsi.</i>"}</p>
+    <hr style="border:0;border-top:1px solid var(--line);margin:12px 0">
+    <p><b>${it.type==="lost"?"Pelapor":"Penemu"}:</b> ${esc(nameOf(it.userId))}${it.contact?`<br><b>Kontak tambahan:</b> ${esc(it.contact)}`:""}</p>
+    <div class="row" style="margin-top:16px">
+      ${!mine&&it.status==="open"?`<button class="btn" onclick="closeModal();startChat(${it.id})"> Chat ${it.type==="lost"?"pemilik":"penemu"}</button>`:""}
+      <button class="btn ghost" onclick="closeModal()">Tutup</button></div>`);
+}
+function markDone(id){
+  const it=itemBy(id);if(!it||!me()||it.userId!==me().id)return;
+  it.status="done";save();renderAll();
+  toast("Ditandai selesai. Poin hanya diberikan lewat konfirmasi pemilik di chat.");
+}
+function del(id){
+  const it=itemBy(id);if(!it||!me()||it.userId!==me().id)return;
+  if(confirm("Hapus laporan ini?")){db.items=db.items.filter(i=>i.id!==id);save();renderAll();toast("Laporan dihapus")}
+}
+
+/* ================= Form laporan + foto ================= */
+$$("select[name=cat]").forEach(s=>s.innerHTML='<option value="">Pilih kategori</option>'+CATS.map(c=>`<option>${c}</option>`).join(""));
+$("#dcat").innerHTML='<option value="">Semua kategori</option>'+CATS.map(c=>`<option>${c}</option>`).join("");
+$$("input[type=date]").forEach(i=>{i.max=day();i.value=day()});
+
+function resize(file){
+  return new Promise(res=>{
+    const r=new FileReader();
+    r.onload=()=>{const img=new Image();img.onload=()=>{
+      const m=560,k=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement("canvas");
+      c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.72))};
+      img.onerror=()=>res("");img.src=r.result};
+    r.onerror=()=>res("");r.readAsDataURL(file);
+  });
+}
+const formPhotos=new WeakMap();
+$$(".reportForm").forEach(f=>{
+  const fi=f.querySelector("input[type=file]"),th=f.querySelector(".thumbs");
+  formPhotos.set(f,[]);
+  fi.addEventListener("change",async()=>{
+    const files=[...fi.files].slice(0,3);if(fi.files.length>3)toast("Maksimal 3 foto, 3 pertama dipakai");
+    const arr=(await Promise.all(files.map(resize))).filter(Boolean);
+    formPhotos.set(f,arr);th.innerHTML=arr.map(p=>`<img src="${p}" alt="Pratinjau">`).join("");
+  });
+  f.addEventListener("reset",()=>{formPhotos.set(f,[]);th.innerHTML="";setTimeout(()=>f.querySelector("input[type=date]").value=day())});
+  f.addEventListener("submit",e=>{
+    e.preventDefault();
+    const u=me();if(!u)return openAuth();
+    const d=Object.fromEntries(new FormData(f));delete d.photos;
+    const it={id:uid(),userId:u.id,type:f.dataset.type,...d,photos:formPhotos.get(f)||[],status:"open",created:now()};
+    db.items.push(it);save();f.reset();renderAll();
+    const best=getMatches().find(m=>m.l.id===it.id||m.f.id===it.id);
+    toast(best?`Laporan terkirim! Ada kemungkinan cocok (${best.s}%) `:"Laporan berhasil dikirim ");
+    location.hash=best?"#dashboard":"#home";
+  });
+});
+
+/* ================= Chat ================= */
+let curTid=null;
+const myThreads=()=>{const u=me();return u?db.threads.filter(t=>t.a===u.id||t.b===u.id):[]};
+const lastMsg=t=>{const m=db.msgs.filter(x=>x.tid===t.id);return m[m.length-1]};
+const otherOf=t=>t.a===me().id?t.b:t.a;
+const isUnread=t=>{const l=lastMsg(t);return l&&l.from!==me().id&&(t.read[me().id]||0)<l.t};
+function updateChatDot(){
+  const n=me()?myThreads().filter(isUnread).length:0,d=$("#chatDot");
+  d.textContent=n;d.classList.toggle("show",n>0);
+}
+function startChat(itemId){
+  if(needLogin())return;
+  const it=itemBy(itemId);if(!it)return;
+  if(it.userId===me().id)return toast("Ini laporan Anda sendiri");
+  let t=db.threads.find(t=>t.itemId===itemId&&((t.a===it.userId&&t.b===me().id)||(t.b===it.userId&&t.a===me().id)));
+  if(!t){t={id:uid(),itemId,a:it.userId,b:me().id,read:{},settled:false};db.threads.push(t);save()}
+  curTid=t.id;location.hash="#chat";renderChat();
+}
+function roles(t){
+  const it=itemBy(t.itemId),otherId=it.userId===t.a?t.b:t.a;
+  return {it,ownerId:it.type==="lost"?it.userId:otherId,finderId:it.type==="found"?it.userId:otherId,otherId};
+}
+function renderChat(){
+  const area=$("#chatArea"),u=me();
+  if(!u){area.innerHTML=`<div class="empty"><p style="margin-bottom:12px">Masuk untuk melihat percakapan Anda.</p><button class="btn" onclick="openAuth()">Login Kampus</button></div>`;return}
+  const th=myThreads().sort((a,b)=>((lastMsg(b)||{t:0}).t)-((lastMsg(a)||{t:0}).t));
+  if(curTid&&!th.some(t=>t.id===curTid))curTid=null;
+  const cur=th.find(t=>t.id===curTid);
+  if(cur){
+    const last=lastMsg(cur),prev=cur.read[u.id]||0;
+    if(last&&last.t>prev){cur.read[u.id]=now();save()}
+    updateChatDot();
+  }
+  const list=th.length?th.map(t=>{
+    const it=itemBy(t.itemId),o=nameOf(otherOf(t)),l=lastMsg(t);
+    return `<div class="thread ${t.id===curTid?"active":""}" onclick="openThread(${t.id})">
+      <div class="avatar">${esc(o[0]||"?")}</div>
+      <div class="t"><b>${esc(o)}</b><small>${it?esc(it.name):"(laporan dihapus)"}</small><small>${l?esc(l.text.slice(0,40)):"Belum ada pesan"}</small></div>
+      ${t.id!==curTid&&isUnread(t)?'<span class="unread"></span>':""}</div>`}).join("")
+    :`<div class="ph">Belum ada percakapan. Buka laporan di Dashboard dan tekan tombol Chat.</div>`;
+  let conv=`<div class="ph">Pilih percakapan di sebelah kiri.</div>`;
+  if(cur){
+    const R=roles(cur),it=R.it,msgs=db.msgs.filter(m=>m.tid===cur.id);
+    const canConfirm=it&&u.id===R.ownerId&&!cur.settled&&it.status==="open";
+    conv=`<div class="conv-head"><div class="row"><button class="btn ghost sm back" onclick="backThreads()">←</button>
+        <div><b>${esc(nameOf(otherOf(cur)))}</b><br><small class="sub">${it?`${it.type==="lost"?"Barang hilang":"Barang temuan"}: ${esc(it.name)}`:""}</small></div></div>
+        <div class="row">${it?`<button class="btn ghost sm" onclick="detail(${it.id})">Lihat laporan</button>`:""}
+        ${canConfirm?`<button class="btn found sm" onclick="confirmReturn(${cur.id})"> Barang sudah kembali</button>`:""}</div></div>
+      <div class="msgs" id="msgs">${msgs.map(m=>m.sys?`<div class="bubble sys">${esc(m.text)}</div>`:`<div class="bubble ${m.from===u.id?"me":""}">${esc(m.text)}<small>${esc(nameOf(m.from))} · ${fmtT(m.t)}</small></div>`).join("")||'<div class="ph">Mulai percakapan dengan menyapa </div>'}</div>
+      <form class="composer" id="composer"><input name="text" placeholder="Tulis pesan..." autocomplete="off" required maxlength="500"><button class="btn" type="submit">Kirim</button></form>`;
+  }
+  area.innerHTML=`<div class="chat ${cur?"show-conv":""}"><div class="threads">${list}</div><div class="conv">${conv}</div></div>`;
+  const ms=$("#msgs");if(ms)ms.scrollTop=ms.scrollHeight;
+  const c=$("#composer");
+  if(c)c.addEventListener("submit",e=>{
+    e.preventDefault();const text=new FormData(c).get("text").trim();if(!text)return;
+    db.msgs.push({id:uid(),tid:cur.id,from:u.id,text,t:now()});cur.read[u.id]=now();save();renderChat();
+    const inp=$("#composer input");if(inp)inp.focus();
+  });
+}
+function openThread(id){curTid=id;renderChat()}
+function backThreads(){curTid=null;renderChat()}
+function confirmReturn(tid){
+  const t=db.threads.find(x=>x.id===tid),u=me();if(!t||!u||t.settled)return;
+  const R=roles(t);if(u.id!==R.ownerId||R.it.status!=="open")return;
+  if(!confirm("Konfirmasi bahwa barang sudah Anda terima kembali? Penemu akan mendapat poin."))return;
+  // cari laporan pasangan milik lawan bicara
+  const counter=db.items.find(i=>i.status==="open"&&i.userId===R.otherId&&i.type!==R.it.type&&score(R.it,i)>=50);
+  const foundItem=R.it.type==="found"?R.it:counter;
+  const pts=BASE_PTS+((foundItem&&foundItem.photos&&foundItem.photos.length)?PHOTO_BONUS:0);
+  R.it.status="done";if(counter)counter.status="done";
+  t.settled=true;
+  const finder=userBy(R.finderId);
+  if(finder){finder.points+=pts;db.log.push({id:uid(),uid:finder.id,delta:pts,note:`Barang "${R.it.name}" dikembalikan`,t:now()})}
+  db.msgs.push({id:uid(),tid:t.id,from:0,sys:true,text:` ${nameOf(u.id)} mengonfirmasi barang sudah kembali. ${nameOf(R.finderId)} mendapat +${pts} poin. Terima kasih!`,t:now()});
+  save();renderAll();toast("Terima kasih! Poin diberikan kepada penemu ");
+}
+
+/* ================= Hadiah ================= */
+function renderRewards(){
+  const area=$("#rewardArea"),u=me();
+  if(!u){area.innerHTML=`<div class="empty"><p style="margin-bottom:12px">Masuk untuk melihat poin dan menukar hadiah.</p><button class="btn" onclick="openAuth()">Login Kampus</button></div><div class="ad-slot" data-ad="banner"></div>`;renderBanners();return}
+  const log=db.log.filter(l=>l.uid===u.id).sort((a,b)=>b.t-a.t),red=db.redeems.filter(r=>r.uid===u.id).sort((a,b)=>b.t-a.t);
+  area.innerHTML=`<div class="wallet"><div><small>Saldo poin Anda</small><div class="big">⭐ ${u.points}</div></div>
+      <div style="max-width:380px;font-size:.9rem">Dapatkan <b>+${BASE_PTS} poin</b> setiap barang temuan Anda dikonfirmasi kembali oleh pemilik, plus <b>+${PHOTO_BONUS}</b> bonus bila ada foto.</div></div>
+    <div class="ad-slot" data-ad="banner"></div>
+    <div class="section-head"><div><h2>Tukar Poin</h2><p class="sub">Voucher dari sponsor ReFound.</p></div></div>
+    <div class="rewards">${REWARDS.map(r=>`<div class="reward"><div class="em">${r.emoji}</div><small class="sub">${esc(r.sponsor)}</small><b>${esc(r.name)}</b><span class="desc">${esc(r.desc)}</span>
+      <div class="row" style="justify-content:space-between;margin-top:auto;padding-top:8px"><span class="cost">⭐ ${r.cost}</span>
+      <button class="btn gold sm" ${u.points<r.cost?"disabled":""} onclick="redeem('${r.id}')">Tukar</button></div></div>`).join("")}</div>
+    <div class="section-head"><h2>Voucher Saya</h2></div>
+    <div class="list">${red.length?red.map(r=>{const rw=REWARDS.find(x=>x.id===r.rewardId)||{};return `<div class="li"><span>${rw.emoji||""} ${esc(rw.name||"")} <small class="sub">· ${esc(rw.sponsor||"")}</small></span><span class="code">${esc(r.code)}</span></div>`}).join(""):'<div class="li sub">Belum ada voucher ditukar.</div>'}</div>
+    <div class="section-head"><h2>Riwayat Poin</h2></div>
+    <div class="list">${log.length?log.map(l=>`<div class="li"><span>${esc(l.note)} <small class="sub">· ${fmt(l.t)}</small></span><span class="${l.delta>0?"plus":"minus"}">${l.delta>0?"+":""}${l.delta}</span></div>`).join(""):'<div class="li sub">Belum ada aktivitas poin.</div>'}</div>`;
+  renderBanners();
+}
+function redeem(id){
+  const u=me(),r=REWARDS.find(x=>x.id===id);if(!u||!r)return;
+  if(u.points<r.cost)return toast("Poin belum cukup");
+  if(!confirm(`Tukar ${r.cost} poin dengan "${r.name}"?`))return;
+  u.points-=r.cost;
+  const code="FI-"+Math.random().toString(36).slice(2,8).toUpperCase();
+  db.redeems.push({id:uid(),uid:u.id,rewardId:id,code,t:now()});
+  db.log.push({id:uid(),uid:u.id,delta:-r.cost,note:`Menukar ${r.name}`,t:now()});
+  save();renderAll();toast("Berhasil! Kode voucher: "+code);
+}
+
+/* ================= Filter, router, sinkron ================= */
+$("#heroSearch").addEventListener("submit",e=>{e.preventDefault();$("#dq").value=$("#heroQ").value;filter="all";setTab();location.hash="#dashboard";renderDash()});
+$("#dq").addEventListener("input",renderDash);
+$("#dcat").addEventListener("change",renderDash);
+$$(".keyword").forEach(btn=>btn.addEventListener("click",()=>{
+  const term=btn.dataset.keyword;
+  $("#heroQ").value=term;
+  $("#dq").value=term;
+  filter="all";setTab();
+  location.hash="#dashboard";renderDash();
+}));
+function setTab(){$$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.f===filter))}
+$$(".tab").forEach(t=>t.addEventListener("click",()=>{filter=t.dataset.f;setTab();renderDash()}));
+
+const PAGES=["home","lost","found","dashboard","chat","rewards"];
+function renderAll(){renderAuth();renderHome();renderDash();renderChat();renderRewards();renderBanners()}
+function route(){
+  const p=(location.hash||"#home").slice(1),page=PAGES.includes(p)?p:"home";
+  $$(".page").forEach(s=>s.classList.toggle("active",s.id==="page-"+page));
+  $$("nav a.link").forEach(a=>a.classList.toggle("active",a.dataset.p===page));
+  $("#nav").classList.remove("open");
+  if(page==="chat")renderChat();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+$("#burger").addEventListener("click",()=>$("#nav").classList.toggle("open"));
+// sinkron antar tab browser (berguna untuk demo chat dengan 2 akun)
+window.addEventListener("storage",e=>{
+  if(e.key===DBK){db=loadDb();renderAll()}
+});
+
+renderAll();route();
+</script>
+</body>
+</html>
